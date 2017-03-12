@@ -1,0 +1,12 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "../out/vagrant.centos-7.3.virtualbox.box"
+
+  config.vm.provider "virtualbox" do |vb|
+      vb.name = "centos-7.3"
+  end
+
+end
