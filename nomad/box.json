@@ -1,0 +1,59 @@
+{
+  "variables": {
+    "box_basename": "centos-7.3"
+  },
+  "builders": [
+    {
+      "type": "virtualbox-ovf",
+      "output_directory": "out/nomad",
+      "source_path": "out/vagrant/centos-7.3.ovf",
+      "ssh_username": "vagrant",
+      "ssh_password": "vagrant",
+      "shutdown_command": "echo 'packer' | sudo -S shutdown -P now",
+      "vm_name": "{{user `box_basename`}}"
+    }
+  ],
+  "post-processors": [
+    {
+      "output": "out/nomad/{{user `box_basename`}}.{{.Provider}}.box",
+      "type": "vagrant",
+      "keep_input_artifact": true
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "nomad/files/consul.service",
+      "destination": "~/consul.service"
+    },
+    {
+      "type": "file",
+      "source": "nomad/files/consul.json",
+      "destination": "~/consul.json"
+    },
+    {
+      "type": "file",
+      "source": "nomad/files/nomad.service",
+      "destination": "~/nomad.service"
+    },
+    {
+      "type": "file",
+      "source": "nomad/files/nomad.conf",
+      "destination": "~/nomad.conf"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sudo yum install -y unzip"
+      ]
+    },
+    {
+      "type": "shell",
+      "scripts": [
+        "nomad/scripts/install-consul.sh",
+        "nomad/scripts/install-nomad.sh",
+        "nomad/scripts/install-docker.sh"
+      ]
+    }
+  ]
+}
