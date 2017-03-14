@@ -1,6 +1,13 @@
 {
   "variables": {
-    "box_basename": "centos-7.3"
+    "box_basename": "centos-7.3",
+
+    "aws_access_key": "{{env `AWS_ACCESS_KEY`}}",
+    "aws_secret_key": "{{env `AWS_SECRET_KEY`}}",
+    "region": "us-east-1",
+    "source_ami": "ami-6d1c2007",
+    "subnet_id": "",
+    "vpc_id": ""
   },
   "builders": [
     {
@@ -11,10 +18,24 @@
       "ssh_password": "vagrant",
       "shutdown_command": "echo 'packer' | sudo -S shutdown -P now",
       "vm_name": "{{user `box_basename`}}"
+    },
+    {
+      "type": "amazon-ebs",
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+      "region": "{{user `region`}}",
+      "source_ami": "{{user `source_ami`}}",
+      "instance_type": "t2.micro",
+      "ssh_pty": true,
+      "ssh_username": "centos",
+      "ami_name": "nomad {{timestamp}}",
+      "subnet_id": "{{user `subnet_id`}}",
+      "vpc_id": "{{user `vpc_id`}}"
     }
   ],
   "post-processors": [
     {
+      "only": ["virtualbox-ovf"],
       "output": "out/nomad/{{user `box_basename`}}.{{.Provider}}.box",
       "type": "vagrant",
       "keep_input_artifact": true
