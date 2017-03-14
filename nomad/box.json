@@ -23,23 +23,8 @@
   "provisioners": [
     {
       "type": "file",
-      "source": "nomad/files/consul.service",
-      "destination": "~/consul.service"
-    },
-    {
-      "type": "file",
-      "source": "nomad/files/consul.json",
-      "destination": "~/consul.json"
-    },
-    {
-      "type": "file",
-      "source": "nomad/files/nomad.service",
-      "destination": "~/nomad.service"
-    },
-    {
-      "type": "file",
-      "source": "nomad/files/nomad.conf",
-      "destination": "~/nomad.conf"
+      "source": "nomad/files/",
+      "destination": "~/"
     },
     {
       "type": "shell",
