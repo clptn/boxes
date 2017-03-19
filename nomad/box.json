@@ -1,9 +1,9 @@
 {
   "variables": {
     "box_basename": "centos-7.3",
+    "cpus": "2",
+    "memory": "1024",
 
-    "aws_access_key": "{{env `AWS_ACCESS_KEY`}}",
-    "aws_secret_key": "{{env `AWS_SECRET_KEY`}}",
     "region": "us-east-1",
     "source_ami": "ami-6d1c2007",
     "subnet_id": "",
@@ -11,12 +11,18 @@
   },
   "builders": [
     {
-      "type": "virtualbox-ovf",
+      "guest_additions_mode": "disable",
+      "headless": true,
       "output_directory": "out/nomad",
+      "shutdown_command": "echo 'packer' | sudo -S shutdown -P now",
       "source_path": "out/vagrant/centos-7.3.ovf",
       "ssh_username": "vagrant",
       "ssh_password": "vagrant",
-      "shutdown_command": "echo 'packer' | sudo -S shutdown -P now",
+      "type": "virtualbox-ovf",
+      "vboxmanage": [
+        ["modifyvm", "{{.Name}}", "--memory", "{{ user `memory` }}"],
+        ["modifyvm", "{{.Name}}", "--cpus", "{{ user `cpus` }}"]
+      ],
       "vm_name": "{{user `box_basename`}}"
     },
     {
@@ -35,31 +41,34 @@
   ],
   "post-processors": [
     {
+      "keep_input_artifact": true,
       "only": ["virtualbox-ovf"],
       "output": "out/nomad/{{user `box_basename`}}.{{.Provider}}.box",
-      "type": "vagrant",
-      "keep_input_artifact": true
+      "type": "vagrant"
     }
   ],
   "provisioners": [
     {
-      "type": "file",
+      "destination": "~/",
       "source": "nomad/files/",
-      "destination": "~/"
+      "type": "file"
     },
     {
-      "type": "shell",
       "inline": [
         "sudo yum install -y unzip"
-      ]
+      ],
+      "type": "shell"
     },
     {
-      "type": "shell",
+      "execute_command": "{{.Vars}} sudo -S -E sh -eux '{{.Path}}'",
       "scripts": [
+        "nomad/scripts/update.sh",
+        "nomad/scripts/disable-transparent-hugepages.sh",
         "nomad/scripts/install-consul.sh",
         "nomad/scripts/install-nomad.sh",
         "nomad/scripts/install-docker.sh"
-      ]
+      ],
+      "type": "shell"
     }
   ]
 }
