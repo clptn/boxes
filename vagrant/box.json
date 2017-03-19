@@ -5,20 +5,19 @@
     "iso_checksum_type": "sha256",
 
     "box_basename": "centos-7.3",
-    "cpus": "1",
+    "cpus": "2",
     "disk_size": "40960",
-    "memory": "512"
+    "memory": "1024"
   },
   "builders": [
     {
       "boot_command": [
         "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg<enter><wait>"
       ],
-      "boot_wait": "10s",
       "disk_size": "{{user `disk_size`}}",
-      "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
       "guest_os_type": "RedHat_64",
       "hard_drive_interface": "sata",
+      "headless": true,
       "http_directory": "vagrant/http",
       "iso_checksum": "{{user `iso_checksum`}}",
       "iso_checksum_type": "{{user `iso_checksum_type`}}",
@@ -28,7 +27,6 @@
       "ssh_password": "vagrant",
       "ssh_port": 22,
       "ssh_username": "vagrant",
-      "ssh_wait_timeout": "10000s",
       "type": "virtualbox-iso",
       "vboxmanage": [
         [
@@ -61,11 +59,13 @@
       ],
       "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E sh -eux '{{.Path}}'",
       "scripts": [
+        "vagrant/scripts/update.sh",
         "vagrant/scripts/sshd.sh",
         "vagrant/scripts/networking.sh",
         "vagrant/scripts/vagrant.sh",
         "vagrant/scripts/virtualbox.sh",
-        "vagrant/scripts/cleanup.sh"
+        "vagrant/scripts/cleanup.sh",
+        "vagrant/scripts/minimize.sh"
       ],
       "type": "shell"
     }
